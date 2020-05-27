@@ -1,5 +1,6 @@
 # HW7CS312
 Creates an Ansible controller that spins up 4 Alpine VM web servers
+
 Instructions on setting up Hw 7:
 Boot up pfsense, CentOS, and the four Alpine VMs. Let each VM initialize before starting the next VM
 Sign into the CentOS vm as centosuser.
