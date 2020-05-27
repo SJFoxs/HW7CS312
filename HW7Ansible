@@ -1,0 +1,63 @@
+#!/bin/bash
+
+echo Starting script for HW7
+#Creating the file variables that will be used
+host=hosts.ini
+playbook=webserver.yaml
+
+echo Installing Ansible
+sudo yum install -y epel-release
+sudo yum install -y ansible
+
+echo Pulling ansible-index.html from cs312 website
+
+curl web.engr.oregonstate.edu/~jessjo/cs312/ansible/ansible-index.html > ~/ansible-index.html
+
+echo Requesting Alpine VM IPs
+
+echo "Alpine VM #1"
+read alpine1
+echo "Alpine VM #2"
+read alpine2
+echo "Alpine VM #3"
+read alpine3
+echo "Alpine VM #4"
+read alpine4
+
+echo Deleting prior Host.ini file
+touch ${host}
+sudo rm ${host}
+
+echo Creating Hosts.ini file
+printf "[mynodes]\n${alpine1}\n${alpine2}\n${alpine3}\n${alpine4}\n\n[mynodes:vars]\nansible_connection=ssh\nansible_port=22\nansible_user=root\nansible_python_interpreter=/usr/bin/python3" >> ${host}
+
+echo Generating SSH Key for Alpine VMs
+echo Please press enter three times
+ssh-keygen -t rsa
+
+echo Sending SSH Key to Alpine VMs
+echo Accept each prompt and enter the root password
+for copy in ${alpine1} ${alpine2} ${alpine3} ${alpine4}
+do
+   ssh-copy-id -i ~/.ssh/id_rsa root@${copy}
+done
+
+echo Deleting prior Ansible playbook
+touch ${playbook}
+sudo rm ${playbook}
+
+echo Creating the Ansible playbook
+printf -- "---\n- hosts: mynodes\n  gather_facts: no\n  become: true\n  tasks:\n  - name: Grabbing Python\n    raw: apk -U add python3\n  - name: Grab Apache2\n    apk:\n      name: apache2\n      state: latest\n  - name: Copy index.html to Alpine VM\n    template:\n      src: ansible-index.html\n      dest: /var/www/localhost/htdocs/index.html\n    notify:\n    - restart apache\n  - name: Start Apache\n    service:\n      name: apache2\n      state: started\n  handlers:\n    - name: restart apache\n      service:\n        name: apache2\n        state: restarted\n" >> ${playbook}
+
+echo Running Ansible playbook
+ansible-playbook ${playbook} -i ./${host}
+
+for ip in ${alpine1} ${alpine2} ${alpine3} ${alpine4}
+do
+   echo Pulling webpage from Alpine VM from ip ${ip}
+   curl ${ip}
+   sleep 10
+done
+
+echo Script Complete for HW7
+#Should I add a cleanup?
