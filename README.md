@@ -17,6 +17,7 @@ Run command: cd HW7CS312
 Rerun command: ./HW7Ansible
 
 The Script will go through all the necessary steps to complete the homework and pull/create the necessary files. There is still a need to go through the prompts that the Script will ask for.
+
 The first prompt will ask for each ip of the Alpine VMs, please enter the ip address and press enter. It will prompt for each one individually, so don’t input more than one ip address at a time.
 
 The second prompt will ask some specifications for the SSH key generation, please press enter three times.
