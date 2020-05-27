@@ -4,14 +4,18 @@ echo Starting script for HW7
 #Creating the file variables that will be used
 host=hosts.ini
 playbook=webserver.yaml
+html=ansible-index.html
 
 echo Installing Ansible
 sudo yum install -y epel-release
 sudo yum install -y ansible
 
-echo Pulling ansible-index.html from cs312 website
+echo Deleting prior ansible-index.html
+touch ${html}
+sudo rm ${html}
 
-curl web.engr.oregonstate.edu/~jessjo/cs312/ansible/ansible-index.html > ~/ansible-index.html
+echo Creating ansible-index.html
+printf "<html>\n<head><title>My Test Page</title></head>\n<body>\n<p>TEST PAGE</p>\n<p>This page was last provisioned on {{ template_run_date }}</p>\n</body>\n</html>\n" >> ${html}
 
 echo Requesting Alpine VM IPs
 
@@ -60,4 +64,3 @@ do
 done
 
 echo Script Complete for HW7
-#Should I add a cleanup?
